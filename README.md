@@ -11,7 +11,7 @@ Supported Transport
 
   - nats
 
-  - websocket
+  - websocket(In progress)
  
 ## Install Dependencies
 
@@ -42,4 +42,3 @@ Options(* - required)
     -- file-path (path to file)*
     
     -- channel (transport channel name, must be the same for reader and writer. Default: 'transfer' )
-    
