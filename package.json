@@ -1,0 +1,40 @@
+{
+  "name": "data-transfer",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prereader": "npm run build",
+    "prewriter": "npm run build",
+    "reader": "node dist/reader/reader.js",
+    "writer": "node dist/writer/writer.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://bitbucket.org/forz13/file_transfer.git"
+  },
+  "author": "foRz",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/forz13/file_transfer#readme",
+  "devDependencies": {
+    "@types/dotenv-safe": "^8.1.0",
+    "@types/node": "^12.12.11",
+    "@typescript-eslint/eslint-plugin": "^2.8.0",
+    "@typescript-eslint/parser": "^2.8.0",
+    "eslint": "^6.6.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "typescript": "^3.7.2"
+  },
+  "dependencies": {
+    "@types/command-line-args": "^5.0.0",
+    "@types/progress": "^2.0.3",
+    "command-line-args": "^5.1.1",
+    "dotenv": "^8.2.0",
+    "dotenv-safe": "^8.2.0",
+    "nats": "^1.3.2",
+    "progress": "^2.0.3",
+    "ts-nats": "^1.2.4"
+  }
+}
