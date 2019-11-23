@@ -4,7 +4,7 @@ import { IWriter } from './IWriter';
 import { ITransport } from '../transport/ITransport';
 
 class FileWriter extends EventEmitter implements IWriter {
-  private readonly filePath: string;
+  private downloadDir: string;
 
   private readonly channel: string;
 
@@ -16,11 +16,27 @@ class FileWriter extends EventEmitter implements IWriter {
 
   private isWriteProcessEnd=false;
 
-  constructor(filePath: string, transport: ITransport, channel: string) {
+  constructor(downloadDir: string, transport: ITransport, channel: string) {
     super();
-    this.filePath = filePath;
     this.transport = transport;
     this.channel = channel;
+    this.setDir(downloadDir);
+  }
+
+  private setDir(downloadDir: string): void{
+    let needCreateDir = false;
+    try {
+      const dirInfo = fs.statSync(downloadDir);
+      if (!dirInfo.isDirectory()) {
+        needCreateDir = true;
+      }
+    } catch (err) {
+      needCreateDir = true;
+    }
+    if (needCreateDir) {
+      fs.mkdirSync(downloadDir);
+    }
+    this.downloadDir = downloadDir;
   }
 
   async exec(): Promise<void> {
@@ -32,7 +48,7 @@ class FileWriter extends EventEmitter implements IWriter {
       if (!this.isWriteProcessStart) {
         this.isWriteProcessStart = true;
         const fileMetaData = JSON.parse(data.toString());
-        this.writeStream = fs.createWriteStream(`./uploads/${fileMetaData.name}`);
+        this.writeStream = fs.createWriteStream(`${this.downloadDir}/${fileMetaData.name}`);
         this.emit('start', fileMetaData);
       }
       if (isLastData) {

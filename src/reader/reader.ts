@@ -2,33 +2,26 @@ import commandLineArgs from 'command-line-args';
 import * as ProgressBarDefault from 'progress';
 import * as dotenv from 'dotenv';
 import { FileReader } from './FileReader';
-import { Transport } from '../transport/Transport';
+import { Transport, SupportedTransports } from '../transport/Transport';
 
 dotenv.config();
 
 (async function run(): Promise<void> {
-  const consoleOptionDefinitions = [
-    { name: 'file_path', type: String },
-    { name: 'transport', type: String },
-    { name: 'channel', type: String },
-  ];
-  const consoleOptions = commandLineArgs(consoleOptionDefinitions);
-  let transport;
-  let reader;
   try {
-    transport = await Transport.getInstance(consoleOptions.transport);
-  } catch (err) {
-    console.error(`Transport error: ${err.message}`);
-    return;
-  }
-  try {
-    reader = new FileReader(consoleOptions.file_path, transport, consoleOptions.channel);
-  } catch (err) {
-    console.error(`FileReader error: ${err.message}`);
-    return;
-  }
+    const consoleOptionDefinitions = [
+      { name: 'file_path', type: String },
+      { name: 'transport', type: String },
+      { name: 'channel', type: String },
+    ];
+    const defaultOptions = {
+      transport: SupportedTransports.NATS,
+      channel: 'transfer',
+    };
+    let consoleOptions = commandLineArgs(consoleOptionDefinitions);
+    consoleOptions = Object.assign(defaultOptions, consoleOptions);
+    const transport = await Transport.getInstance(consoleOptions.transport);
+    const reader = new FileReader(consoleOptions.file_path, transport, consoleOptions.channel);
 
-  try {
     const ProgressBar = ProgressBarDefault.default;
     const bar = new ProgressBar('Uploading [:bar] :percent :elapseds', {
       complete: '=',
