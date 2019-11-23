@@ -24,13 +24,13 @@ npm install
 
 * Run writer
 ```bash
-npm run writer -- --transport nats --download-dir './downloads' --channel 'transfer'
+npm run writer -- --transport nats --download_dir './downloads' --channel 'transfer'
 
 ```
 
 * Run reader
 ```bash
-npm run reader -- --transport nats --file-path './uploads/movie-orig.avi' --channel 'transfer'
+npm run reader -- --transport nats --file_path './uploads/movie.avi' --channel 'transfer'
 ```
 
 Options(* - required)
@@ -41,5 +41,5 @@ Options(* - required)
     
     -- file-path (path to file)*
     
-    -- channel (transport channel name, mast be the same for reader and writer. Default: 'transfer' )
+    -- channel (transport channel name, must be the same for reader and writer. Default: 'transfer' )
     
