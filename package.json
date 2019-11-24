@@ -5,8 +5,10 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
-    "prereader": "npm run build",
-    "prewriter": "npm run build",
+    "prereader-dev": "npm run build",
+    "prewriter-dev": "npm run build",
+    "reader-dev": "node dist/reader/reader.js",
+    "writer-dev": "node dist/writer/writer.js",
     "reader": "node dist/reader/reader.js",
     "writer": "node dist/writer/writer.js"
   },

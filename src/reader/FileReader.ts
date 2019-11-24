@@ -61,13 +61,13 @@ class FileReader extends EventEmitter implements IReader {
       });
     }
 
-    protected async send(message: Buffer): Promise<boolean> {
+
+    protected async send(message: Buffer): Promise<void> {
       try {
         await this.transport.send(this.channel, message);
       } catch (err) {
         throw new Error(`FileReader->send error->${err.message}`);
       }
-      return true;
     }
 }
 

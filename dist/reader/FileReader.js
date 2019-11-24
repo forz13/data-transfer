@@ -67,7 +67,6 @@ class FileReader extends events_1.EventEmitter {
             catch (err) {
                 throw new Error(`FileReader->send error->${err.message}`);
             }
-            return true;
         });
     }
 }

@@ -25,8 +25,7 @@ class Transport {
                     transport = new NatsTransport_1.NatsTransport(process.env.NATS_URL);
                     break;
                 case SupportedTransports.WEBSOCKET:
-                    transport = new NatsTransport_1.NatsTransport(process.env.WEBSOCKET_URL);
-                    break;
+                    throw new Error('Transport not yet supported');
                 default:
                     throw new Error('Unsupported transport');
             }
