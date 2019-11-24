@@ -9,7 +9,8 @@ module.exports = {
         "@typescript-eslint/interface-name-prefix": "off",
         "@typescript-eslint/camelcase":"off",
         "no-cond-assign": "off",
-        "no-await-in-loop": "off"
+        "no-await-in-loop": "off",
+        "import/no-extraneous-dependencies":"off"
     },
     "settings": {
         "import/resolver": {
