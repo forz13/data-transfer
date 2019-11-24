@@ -15,11 +15,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://bitbucket.org/forz13/file_transfer.git"
+    "url": "git+https://github.com/forz13/data-transfer.git"
   },
   "author": "foRz",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/forz13/file_transfer#readme",
+  "homepage": "https://github.com/forz13/data-transfer",
   "devDependencies": {
     "@types/chai": "^4.2.5",
     "@types/command-line-args": "^5.0.0",
