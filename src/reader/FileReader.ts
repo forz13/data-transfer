@@ -1,74 +1,46 @@
 import fs from 'fs';
 import path from 'path';
+import util from 'util';
 import { EventEmitter } from 'events';
-import { IReader } from './IReader';
 
-import { ITransport } from '../transport/ITransport';
+const fsStatAsync = util.promisify(fs.stat);
 
-class FileReader extends EventEmitter implements IReader {
-    private readonly filePath: string;
+export interface FileMetaData {
+    name: string;
+    filePath: string;
+    fileSizeInByte: number;
+}
 
-    private readonly fileName: string;
+export class FileReader extends EventEmitter {
+    private fileMetaData: FileMetaData;
 
-    private readonly fileSizeInByte: number;
-
-    private readonly channel: string;
-
-    private transport: ITransport;
+    private filePath: string;
 
     private readStream: fs.ReadStream;
 
-    constructor(filePath: string, transport: ITransport, channel: string) {
+    constructor(filePath: string) {
       super();
       this.filePath = filePath;
-      this.fileName = path.basename(filePath);
-      const fileStat = fs.statSync(this.filePath);
-      this.fileSizeInByte = fileStat.size;
-      this.transport = transport;
-      this.channel = channel;
-      this.readStream = fs.createReadStream(this.filePath, {
-        highWaterMark: this.transport.maxMessageSizeKB,
-      });
     }
 
-    public fileSize(): number {
-      return this.fileSizeInByte;
-    }
-
-    async exec(): Promise<void> {
-      const firstChunk = Buffer.from(JSON.stringify({
-        name: this.fileName,
-        size: this.fileSizeInByte,
-      }));
-      await this.send(firstChunk);
-      return new Promise((resolve, reject) => {
-        this.readStream.on('data', async (chunk) => {
-          this.readStream.pause();
-          try {
-            await this.send(chunk);
-            this.emit('send', chunk.length);
-            this.readStream.resume();
-          } catch (err) {
-            reject(err);
-          }
-        });
-        this.readStream.on('error', (err) => reject(err));
-        this.readStream.on('end', async () => {
-          await this.send(Buffer.from(''));
-          this.readStream.close();
-          resolve();
-        });
-      });
-    }
-
-
-    protected async send(message: Buffer): Promise<void> {
-      try {
-        await this.transport.send(this.channel, message);
-      } catch (err) {
-        throw new Error(`FileReader->send error->${err.message}`);
+    async stream(maxMessageSizeKB: number): Promise<fs.ReadStream> {
+      if (!this.readStream) {
+        fs.createReadStream(this.filePath, { highWaterMark: maxMessageSizeKB });
       }
+      return this.readStream;
+    }
+
+    async meta(): Promise<FileMetaData> {
+      if (!this.fileMetaData) {
+        const fileName = path.basename(this.filePath);
+        const fileStats = await fsStatAsync(this.filePath);
+        const fileSizeInByte = fileStats.size;
+        this.fileMetaData = {
+          name: fileName,
+          filePath: this.filePath,
+          fileSizeInByte,
+        };
+      }
+      return this.fileMetaData;
     }
 }
-
-export { FileReader };

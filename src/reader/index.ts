@@ -1,10 +1,13 @@
 import commandLineArgs from 'command-line-args';
+import stream from 'stream';
 import * as ProgressBarDefault from 'progress';
 import * as dotenv from 'dotenv';
-import { FileReader } from './FileReader';
+import { FileReader, FileMetaData } from './FileReader';
 import { Transport, SupportedTransports } from '../transport/Transport';
+import { Reader } from './Reader';
 
 dotenv.config();
+
 
 (async function run(): Promise<void> {
   try {
@@ -20,20 +23,22 @@ dotenv.config();
     let consoleOptions = commandLineArgs(consoleOptionDefinitions);
     consoleOptions = Object.assign(defaultOptions, consoleOptions);
     const transport = await Transport.getInstance(consoleOptions.transport);
-    const reader = new FileReader(consoleOptions.file_path, transport, consoleOptions.channel);
-
+    const fileReader = new FileReader(consoleOptions.file_path);
+    const fileMetaData = await fileReader.meta();
+    const readStream = await fileReader.stream(transport.maxMessageSizeKB);
+    const reader = new Reader(readStream, fileMetaData, transport);
     const ProgressBar = ProgressBarDefault.default;
     const bar = new ProgressBar('Uploading [:bar] :percent :elapseds', {
       complete: '=',
       incomplete: ' ',
       width: 40,
-      total: reader.fileSize(),
+      total: fileMetaData.fileSizeInByte,
     });
     reader.on('send', (chunkLength) => {
       bar.tick(chunkLength);
     });
     console.info('Reader start sending file data');
-    await reader.exec();
+    await reader.run(consoleOptions.channel);
     setTimeout(() => {
       console.info('Reader done');
       process.exit(0);
