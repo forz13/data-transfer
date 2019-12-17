@@ -1,9 +1,12 @@
 import fs, { WriteStream } from 'fs';
 import { EventEmitter } from 'events';
-import { IWriter } from './IWriter';
+import util from 'util';
 import { ITransport } from '../transport/ITransport';
 
-class FileWriter extends EventEmitter implements IWriter {
+const fsStatAsync = util.promisify(fs.stat);
+const fsMkdirAsync = util.promisify(fs.mkdir);
+
+class FileWriter extends EventEmitter {
   private downloadDir: string;
 
   private readonly channel: string;
@@ -20,13 +23,13 @@ class FileWriter extends EventEmitter implements IWriter {
     super();
     this.transport = transport;
     this.channel = channel;
-    this.setDir(downloadDir);
+    this.downloadDir = downloadDir;
   }
 
-  private setDir(downloadDir: string): void{
+  private async createDir(): Promise<void> {
     let needCreateDir = false;
     try {
-      const dirInfo = fs.statSync(downloadDir);
+      const dirInfo = await fsStatAsync(this.downloadDir);
       if (!dirInfo.isDirectory()) {
         needCreateDir = true;
       }
@@ -34,12 +37,12 @@ class FileWriter extends EventEmitter implements IWriter {
       needCreateDir = true;
     }
     if (needCreateDir) {
-      fs.mkdirSync(downloadDir);
+      await fsMkdirAsync(this.downloadDir);
     }
-    this.downloadDir = downloadDir;
   }
 
   async exec(): Promise<void> {
+    await this.createDir();
     await this.transport.consume(this.channel, this.dataHandler.bind(this));
   }
 

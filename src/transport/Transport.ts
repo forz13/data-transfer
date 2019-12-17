@@ -7,7 +7,7 @@ enum SupportedTransports {
 }
 
 class Transport {
-  public static async getInstance(transportType: string) {
+  public static async getInstance(transportType: string): Promise<ITransport> {
     let transport;
     switch (transportType) {
       case SupportedTransports.NATS:

@@ -1,8 +1,7 @@
 import commandLineArgs from 'command-line-args';
-import stream from 'stream';
 import * as ProgressBarDefault from 'progress';
 import * as dotenv from 'dotenv';
-import { FileReader, FileMetaData } from './FileReader';
+import { FileReader } from './FileReader';
 import { Transport, SupportedTransports } from '../transport/Transport';
 import { Reader } from './Reader';
 

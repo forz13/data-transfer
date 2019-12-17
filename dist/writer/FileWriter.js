@@ -14,6 +14,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const events_1 = require("events");
+const util_1 = __importDefault(require("util"));
+const fsStatAsync = util_1.default.promisify(fs_1.default.stat);
+const fsMkdirAsync = util_1.default.promisify(fs_1.default.mkdir);
 class FileWriter extends events_1.EventEmitter {
     constructor(downloadDir, transport, channel) {
         super();
@@ -21,26 +24,28 @@ class FileWriter extends events_1.EventEmitter {
         this.isWriteProcessEnd = false;
         this.transport = transport;
         this.channel = channel;
-        this.setDir(downloadDir);
+        this.downloadDir = downloadDir;
     }
-    setDir(downloadDir) {
-        let needCreateDir = false;
-        try {
-            const dirInfo = fs_1.default.statSync(downloadDir);
-            if (!dirInfo.isDirectory()) {
+    createDir() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let needCreateDir = false;
+            try {
+                const dirInfo = yield fsStatAsync(this.downloadDir);
+                if (!dirInfo.isDirectory()) {
+                    needCreateDir = true;
+                }
+            }
+            catch (err) {
                 needCreateDir = true;
             }
-        }
-        catch (err) {
-            needCreateDir = true;
-        }
-        if (needCreateDir) {
-            fs_1.default.mkdirSync(downloadDir);
-        }
-        this.downloadDir = downloadDir;
+            if (needCreateDir) {
+                yield fsMkdirAsync(this.downloadDir);
+            }
+        });
     }
     exec() {
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.createDir();
             yield this.transport.consume(this.channel, this.dataHandler.bind(this));
         });
     }

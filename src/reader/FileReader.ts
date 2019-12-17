@@ -25,7 +25,7 @@ export class FileReader extends EventEmitter {
 
     async stream(maxMessageSizeKB: number): Promise<fs.ReadStream> {
       if (!this.readStream) {
-        fs.createReadStream(this.filePath, { highWaterMark: maxMessageSizeKB });
+        this.readStream = fs.createReadStream(this.filePath, { highWaterMark: maxMessageSizeKB });
       }
       return this.readStream;
     }
